@@ -28,7 +28,7 @@ def check_guess(magic_number: object, guess_number: object) -> object:
 def main():
     max_number = 10
     min_number = 1
-    greeting_text = 'Hi there, I guessed a number between {0} and {1} . Want to try to guess it??'
+    greeting_text = 'Greetings! I guessed a number between {0} and {1} . Want to try to guess it??'
 
     print(greeting_text.format(min_number, max_number))
     magic_number = random.randint(min_number, max_number)
