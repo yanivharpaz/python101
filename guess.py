@@ -42,6 +42,6 @@ def main():
     guess_message = 'Number {0} was found correctly'
     print(guess_message.format(magic_number))
 
-
+# If this is the main module, run the main function
 if __name__ == '__main__':
     main()
