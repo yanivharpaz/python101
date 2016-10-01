@@ -14,7 +14,7 @@ def input_number():
     return user_input
 
 
-def check_guess(magic_number: object, guess_number: object) -> object:
+def check_guess(magic_number, guess_number):
     result_of_guess = False
     if guess_number > magic_number:
         print('Your guess is too high.')
@@ -25,7 +25,7 @@ def check_guess(magic_number: object, guess_number: object) -> object:
     return result_of_guess
 
 
-def main() -> object:
+def main():
     max_number = 10
     min_number = 1
     greeting_text = 'Greetings! I guessed a number between {0} and {1} . Want to try to guess it?'
