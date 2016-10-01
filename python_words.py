@@ -1,6 +1,11 @@
+import random
+
+
 
 def get_random_word():
-    return 'pizza'
+    words = ['pizza', 'cheese', 'apples']
+
+    return words[random.randint(0,3)]
 
 def play_game():
     print('Playing game')
@@ -15,6 +20,12 @@ def play_game():
 
         if strikes >= max_strikes:
             playing = False
+
+
+    if strikes >= max_strikes:
+        print("Sorry, you lost.")
+    else:
+        print("Winner, you guessed right.")
 
 
 def main():
