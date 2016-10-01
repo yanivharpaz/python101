@@ -25,7 +25,7 @@ def check_guess(magic_number: object, guess_number: object) -> object:
     return result_of_guess
 
 
-def main():
+def main() -> object:
     max_number = 10
     min_number = 1
     greeting_text = 'Greetings! I guessed a number between {0} and {1} . Want to try to guess it?'
