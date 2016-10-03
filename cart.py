@@ -14,6 +14,7 @@ def go_shopping():
 
     print(cart)
 
+
 def main():
     go_shopping()
 
