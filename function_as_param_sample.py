@@ -2,7 +2,7 @@ def get_words():
     '''
     Produce words
     '''
-    visible_texts = ['hello', 'there', 'how', 'are', 'you', 'doing', 'my' , 'friend']
+    visible_texts = ['hello', 'there', 'how', 'are', 'you', 'doing', 'my', 'friend']
     return visible_texts
 
 
