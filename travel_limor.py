@@ -77,11 +77,13 @@ class Aircraft:
         return (range(1, self._num_rows + 1), "ABCDEFGHJK"[:self.num_seats_per_row])
 
 
+# main
 z = Flight("BA758", Aircraft("G-EUPT", "Airbus A319", num_rows=22, num_seats_per_row=6))
 z.allocate_seat('12A', 'limor levi')
 z.allocate_seat('12B', 'yaniv harpaz')
 
 pp(z._seating)
+
 # temp=z._aircraft.seating_plan()
 
 # z.aircraft_model()
