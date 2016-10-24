@@ -23,9 +23,34 @@ class Flight:
     def number(self):
         return self._number
 
+    def aircraft_model(self):
+        return self._aircraft.model()
+
+    def allocate_seat(self, seat, passenger):
+        letter, row = self._parse_seat(seat)
+
+        if self._seating[row][letter] is not None:
+            raise ValueError("Seat {} already occupied".format((seat)))
+
+        self._seating[row][letter] = passenger
+
+    def _parse_seat(self, seat):
+        rows, seat_letters = self._aircraft.seating_plan()
+        letter = seat[-1]
+        if letter not in seat_letters:
+            raise ValueError("Invalid seat letter {}".format(letter))
+        row_text = seat[:-1]
+        try:
+            row = int(row_text)
+        except ValueError:
+            raise ValueError("Invalid seat row {}".format(row_text))
+        if row not in rows:
+            raise ValueError("Invalid row number {}".format(row))
+        return letter, row
+
 
 class Aircraft:
-'''Class AirCraft'''
+    """Class AirCraft"""
     def __init__(self, registration, model, num_rows, num_seats_per_row):
         self._registration = registration
         self._model = model
@@ -44,3 +69,4 @@ class Aircraft:
 
 
 
+# f = Flight("BA758", Aircraft("G_EUPT", "AirBus A319", num_rows=22, num_seats_per_row=6))
