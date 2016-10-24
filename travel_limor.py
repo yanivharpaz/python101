@@ -77,6 +77,19 @@ class Aircraft:
         return (range(1, self._num_rows + 1), "ABCDEFGHJK"[:self.num_seats_per_row])
 
 
+def console_card_printer(passenger, seat, flight_number, aircraft):
+    output = "|Name: {0}" \
+             "Flight: {1}" \
+             "Seat: {2}" \
+             "Aircraft: {3}" \
+             "|".format(passenger, flight_number, seat, aircraft)
+    banner = '+' + '-' * (len(output) - 2) + '+'
+    border = '|' + ' ' * (len(output) - 2) + '|'
+    lines = [banner, border, output, border, banner]
+    card = '\n'.join(lines)
+    print(card)
+    print()
+
 # main
 z = Flight("BA758", Aircraft("G-EUPT", "Airbus A319", num_rows=22, num_seats_per_row=6))
 z.allocate_seat('12A', 'limor levi')
