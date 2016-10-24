@@ -25,7 +25,7 @@ class Flight:
 
 
 class Aircraft:
-
+'''Class AirCraft'''
     def __init__(self, registration, model, num_rows, num_seats_per_row):
         self._registration = registration
         self._model = model
