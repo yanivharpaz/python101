@@ -59,6 +59,17 @@ class Flight:
         self._seating[to_row][to_letter] = self._seating[from_row][from_letter]
         self._seating[from_row][from_letter] = None
 
+    def num_available_seats(self):
+        return sum(sum(1 for s in row.values() if s in None)
+                   for row in self._seating
+                   if row is not None)
+
+    def make_bording_cards(self,card_printer):
+        for passenger, seat in sorted(self._passenger_seats()):
+            card_printer(passenger,seat,self.number(),self.aircraft_model())
+
+    # def _passenger_seats(self):
+    #     row_numbers, seat_letters = self._
 
 class Aircraft:
     def __init__(self, registration, model, num_rows, num_seats_per_row):
@@ -74,7 +85,17 @@ class Aircraft:
         print(self._model)
 
     def seating_plan(self):
-        return (range(1, self._num_rows + 1), "ABCDEFGHJK"[:self.num_seats_per_row])
+        return(range(1, self._num_rows + 1), "ABCDEFGHJK"[:self.num_seats_per_row])
+
+
+
+
+# main
+z = Flight("BA758", Aircraft("G-EUPT", "Airbus A319", num_rows=22, num_seats_per_row=6))
+z.allocate_seat('12A', 'limor levi')
+z.allocate_seat('12B', 'yaniv harpaz')
+
+pp(z._seating)
 
 
 def console_card_printer(passenger, seat, flight_number, aircraft):
@@ -90,12 +111,6 @@ def console_card_printer(passenger, seat, flight_number, aircraft):
     print(card)
     print()
 
-# main
-z = Flight("BA758", Aircraft("G-EUPT", "Airbus A319", num_rows=22, num_seats_per_row=6))
-z.allocate_seat('12A', 'limor levi')
-z.allocate_seat('12B', 'yaniv harpaz')
-
-pp(z._seating)
 
 # temp=z._aircraft.seating_plan()
 
