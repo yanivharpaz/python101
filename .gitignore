@@ -101,6 +101,7 @@ ENV/
 .idea/dataSources.local.xml
 .idea/sqlDataSources.xml
 .idea/dynamic.xml
+.idea/misc.xml
 .idea/uiDesigner.xml
 
 # Gradle:
