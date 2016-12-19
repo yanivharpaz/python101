@@ -4,7 +4,7 @@ import datetime
 import shutil
 
 
-conn = pymssql.connect(server= '127.0.0.1', user='limor', password='shina', database= 'clinic')
+conn = pymssql.connect(server='127.0.0.1', user='limor', password='shina', database='clinic')
 cursor = conn.cursor()
 cursor.execute('select * from mirpaot')
 
