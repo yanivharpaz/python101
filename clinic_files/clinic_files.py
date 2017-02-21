@@ -57,7 +57,7 @@ def main(argv):
     local_db.query_db()
     local_db.close()
     print("Connection Closed")
-
+    # connection closed
 
 
 if __name__ == "__main__":
