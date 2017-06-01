@@ -33,6 +33,3 @@ class SsisMoveToProd(object):
             with conn.cursor() as cursor:
                 cursor.callproc('spInsertExiteCodeDescription_prod', self.jobname)
 
-
-
-
