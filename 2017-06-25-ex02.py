@@ -65,3 +65,5 @@ allboys.pop(0)
 print(allboys)
 allboys.remove(allboys[1])
 print(allboys)
+
+
