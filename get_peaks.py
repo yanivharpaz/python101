@@ -129,13 +129,14 @@ def get_peaks_info(peak_properties, peaks_list):
     peaks_counter = 0
     peaks_info_raw = dict()
     for peak_id in peaks_list:
+        print ".",
         peaks_counter += 1
         peak_info = get_peak_info_by_id(peak_id, peak_properties)
         peak_raw_data = build_peak_raw_data(peak_id, peak_info, peaks_list)
 
         peaks_info_raw[peak_id] = peak_raw_data
         # print json.dumps(peak_info, indent=4)
-        if peaks_counter > 6:
+        if peaks_counter > 69999999:
             break
     return peaks_info_raw
 
@@ -145,8 +146,8 @@ def get_numeric_value(raw_value):
         result = float(raw_value.replace(",", ""))
     except:
         result = None
-
     return result
+
 
 def get_enhanced_peak_info(peaks_info_raw, properties_list):
     peaks_info = dict()
@@ -180,11 +181,13 @@ def main():
 
     peaks_info = get_enhanced_peak_info(peaks_info_raw, properties_list)
 
+    with open('peaks_info.json', 'w') as outfile:
+        json.dump(peaks_info, outfile)
+
     print(json.dumps(peaks_info, indent=4))
     print(properties_list)
     # print("Amount of peaks found:", len(peaks))
     print("Web scraping of www.peakware.com is complete.")
-
 
 
 if __name__ == "__main__":
