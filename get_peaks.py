@@ -74,6 +74,7 @@ def get_peaks_list(continents):
         ul_list = soup.find("ul", {"id": "peakList"})
 
         # loop through the list items (LI)
+        print("Processing peaks list of {}, so far got {} peaks.".format(continent_name, str(len(peaks))))
         for list_item in ul_list:
 
             if isinstance(list_item, bs4.element.Tag):
@@ -168,7 +169,8 @@ def main():
     print("Getting initial continents list.")
 
     # work on Antarctica for the development phase (SAMPLE_DATA is True)
-    continents = {"Antarctica": "An"} if SAMPLE_DATA else get_continents()
+    continents = {"Antarctica": "An", "South America": "So"} if SAMPLE_DATA else get_continents()
+
 
     print("Initial continents list retrieval complete.")
 
@@ -176,16 +178,17 @@ def main():
     peaks_list = get_peaks_list(continents)
     # print(json.dumps(peaks_list, indent=4))
 
+    print "Got {} peaks to process info".format(str(len(peaks_list)))
     peaks_info_raw = get_peaks_info(peak_properties, peaks_list)
-    properties_list = peak_properties.get_properties_list()
 
+    properties_list = peak_properties.get_properties_list()
     peaks_info = get_enhanced_peak_info(peaks_info_raw, properties_list)
 
     with open('peaks_info.json', 'w') as outfile:
-        json.dump(peaks_info, outfile)
+        json.dump(peaks_info, outfile, indent=4)
 
-    print(json.dumps(peaks_info, indent=4))
-    print(properties_list)
+    # print(json.dumps(peaks_info, indent=4))
+    # print(properties_list)
     # print("Amount of peaks found:", len(peaks))
     print("Web scraping of www.peakware.com is complete.")
 
