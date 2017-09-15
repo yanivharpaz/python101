@@ -18,6 +18,20 @@ SAMPLE_DATA = True
 # SAMPLE_DATA = False
 
 
+class PeakProperties(object):
+    """
+    Class for all the peak info properties
+    """
+    def __init__(self):
+        self.properties_set = set()
+
+    def add_property(self, property_name):
+        self.properties_set.add(property_name)
+
+    def get_properties_list(self):
+        return list(self.properties_set)
+
+
 def get_continents():
     continents = dict()
     url = urls["peaks_main_url"]
@@ -76,7 +90,7 @@ def get_peaks_list(continents):
     return peaks
 
 
-def get_peak_info_by_id(peak_id):
+def get_peak_info_by_id(peak_id, peak_properties):
     peak_info = dict()
 
     url = urls["peak_url"] + peak_id
@@ -84,13 +98,20 @@ def get_peak_info_by_id(peak_id):
 
     # parse the unordered list (UL) from the HTML
     soup = bs(response.text, "html.parser")
+
     overview_div = soup.find("div", {"id": "overview"})
-    print(overview_div)
+    headers = overview_div.findAll("th")
+    values = overview_div.findAll("td")
+
+    for header, value in zip(headers, values):
+        peak_info[header.text[:-1]] = value.text
+        peak_properties.add_property(header.text[:-1])
 
     return peak_info
 
 
 def main():
+    peak_properties = PeakProperties()
     print("Starting web scraping of www.peakware.com ")
     print("Getting initial continents list.")
 
@@ -105,9 +126,16 @@ def main():
     peaks_list = get_peaks_list(continents)
     # print(json.dumps(peaks_list, indent=4))
 
+    peaks_counter = 0
     for peak_id in peaks_list:
-        peak_info = get_peak_info_by_id(peak_id)
+        peaks_counter += 1
+        peak_info = get_peak_info_by_id(peak_id, peak_properties)
+        print json.dumps(peak_info, indent=4)
+        if peaks_counter > 2:
+            break
 
+    properties_list = peak_properties.get_properties_list()
+    print(properties_list)
     # print("Amount of peaks found:", len(peaks))
     print("Web scraping of www.peakware.com is complete.")
 
