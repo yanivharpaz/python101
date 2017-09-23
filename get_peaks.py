@@ -2,6 +2,13 @@ from bs4 import BeautifulSoup as bs
 import bs4
 import requests
 import json
+import csv
+import sys
+
+reload(sys)
+sys.setdefaultencoding('utf8')
+
+import pandas as pd
 import traceback
 
 # settings
@@ -60,7 +67,6 @@ def get_continents():
             # Save new data to the continents dictionary
             continents[continent_name] = continent_code
     return continents
-
 
 
 def get_peaks_list(continents):
@@ -155,12 +161,35 @@ def get_enhanced_peak_info(peaks_info_raw, properties_list):
     for peak_id, peak_info in peaks_info_raw.items():
         peaks_info[peak_id] = {property_name: None for property_name in properties_list}
         for key, value in peaks_info_raw[peak_id].items():
-            peaks_info[peak_id][key] = get_numeric_value(value) if key in NUMERIC_PROPERTIES_LIST else value
+            peaks_info[peak_id][key] = get_numeric_value(value) if key in NUMERIC_PROPERTIES_LIST \
+                else value.lower().encode("utf-8")
+            # else unicode(value.lower(), errors='ignore')
 
-        # peaks_info[peak_id] = {key: value for key, value in peaks_info_raw[peak_id].items()}
+            # peaks_info[peak_id] = {key: value for key, value in peaks_info_raw[peak_id].items()}
 
     return peaks_info
 
+
+def get_headers(dict_to_examine):
+    headers = list()
+    for outer_key in dict_to_examine:
+        headers = dict_to_examine[outer_key].keys()
+        break
+
+    return headers
+
+
+def write_dict_to_csv(csv_file, csv_columns, dict_data):
+    try:
+        with open(csv_file, 'w') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=csv_columns, delimiter=',',
+                                    quotechar='"', quoting=csv.QUOTE_MINIMAL)
+            writer.writeheader()
+            for data in dict_data:
+                writer.writerow(data)
+    except IOError as (errno, strerror):
+            print("I/O error({0}): {1}".format(errno, strerror))
+    return
 
 
 def main():
@@ -170,6 +199,7 @@ def main():
 
     # work on Antarctica for the development phase (SAMPLE_DATA is True)
     continents = {"Antarctica": "An", "South America": "So"} if SAMPLE_DATA else get_continents()
+    # continents = {"Antarctica": "An"} if SAMPLE_DATA else get_continents()
 
 
     print("Initial continents list retrieval complete.")
@@ -187,10 +217,34 @@ def main():
     with open('peaks_info.json', 'w') as outfile:
         json.dump(peaks_info, outfile, indent=4)
 
+    headers = get_headers(peaks_info)
+    print("headers:", headers)
+
+    write_dict_to_csv("peaks.csv", headers, peaks_info.values())
+    # with open('peaks_info_dict.csv', 'w') as csv_file:
+    #     writer = csv.DictWriter(csv_file, fieldnames=['Name', 'Nearest major airport', 'Range/Region', 'Year first climbed',
+    #                                                   'Id', 'Difficulty', 'Country', 'Latitude', 'Best months for climbing',
+    #                                                   'Longitude', 'Heights', 'First successful climber(s)',
+    #                                                   'Volcanic status', 'Elevation (feet)', 'Elevation (meters)',
+    #                                                   'Convenient Center', 'Most recent eruption', 'Continent'])
+
+
+    # with open('peaks_info_dict.csv', 'w') as csv_file:
+    #     writer = csv.DictWriter(csv_file,
+    #                             fieldnames=properties_list_str)
+    #     writer.writeheader()
+    #     for data in peaks_info.values():
+    #         writer.writerow(data)
+
+    # df_data = pd.read_csv('peaks_info_dict.csv')
+    # df_data.head()
+
     # print(json.dumps(peaks_info, indent=4))
     # print(properties_list)
     # print("Amount of peaks found:", len(peaks))
+    print("")
     print("Web scraping of www.peakware.com is complete.")
+
 
 
 if __name__ == "__main__":
