@@ -1,3 +1,4 @@
+from __future__ import print_function
 from bs4 import BeautifulSoup as bs
 import bs4
 import json
@@ -31,7 +32,7 @@ NUMERIC_PROPERTIES_LIST = [
                             ]
 
 CONTINENT_PEAKS_SUFFIX_FOR_SORT_BY_NAME = "A"
-PARALLEL_FACTOR = 20
+PARALLEL_FACTOR = 4
 SAMPLE_DATA = True
 # SAMPLE_DATA = False
 
@@ -50,9 +51,6 @@ class PeakProperties(object):
         return list(self.properties_set)
 
 
-# ----------------------
-# Timer
-# ----------------------
 class RunningTimer(object):
     # Class for basic timer management
     def __init__(self, remove_micro_seconds=False):
@@ -81,6 +79,14 @@ class RunningTimer(object):
             return "The timer did not stop"
         result = str(self.end_timer - self.timer)
         return result
+
+
+def get_numeric_value(raw_value):
+    try:
+        result = float(raw_value.replace(",", "").strip())
+    except:
+        result = None
+    return result
 
 
 def get_continents():
@@ -139,11 +145,8 @@ def get_peaks_list(continents):
     return peaks
 
 
-def get_peak_info_by_id(response, peak_properties):
+def peak_response_to_dictionary(response, peak_properties):
     peak_info = dict()
-
-    # url = URLS["peak_url"] + peak_id
-    # response = requests.get(url)
 
     # parse the unordered list (UL) from the HTML
     soup = bs(response.text, "html.parser")
@@ -171,7 +174,6 @@ def build_peak_raw_data(peak_id, peak_info, peaks_list):
 
 
 def get_peaks_response_list(peaks_url_list):
-    result_response_list = list()
     pool = ThreadPool(PARALLEL_FACTOR)
     result_response_list = pool.map(requests.get, peaks_url_list)
     return result_response_list
@@ -182,66 +184,38 @@ def get_peaks_info(peak_properties, peaks_list):
     peaks_info_raw = dict()
 
     website_timer = RunningTimer()
-    # added for parallel usage
-    peaks_url_list = [URLS["peak_url"] + peak_id for peak_id in peaks_list]
-    response_list = get_peaks_response_list(peaks_url_list)
+    # build a URL list and process it
+    peaks_url_list = [URLS["peak_url"] + peak_id for peak_id in peaks_list]     # list comprehension for URLs
+    response_list = get_peaks_response_list(peaks_url_list)                     # launch a parallel process for requests
+    # print stats: how many and how long
     print("response_list", len(response_list))
     website_timer.stop()
-    print "Time for website parallel access:", website_timer.display()
+    print("Time for website parallel access:", website_timer.display())
 
+    # process the HTML response list into a dict
     for response in response_list:
-        # print ".",
         peaks_counter += 1
-        peak_info = get_peak_info_by_id(response, peak_properties)
+        peak_info = peak_response_to_dictionary(response, peak_properties)
         peak_id = response.url[response.url.index("pk=") + 3:]
-        # print(response.url, peak_id)
-        # print(peak_info)
         peak_raw_data = build_peak_raw_data(peak_id, peak_info, peaks_list)
 
         peaks_info_raw[peak_id] = peak_raw_data
-        # print json.dumps(peak_info, indent=4)
-        if peaks_counter > 69999999:
-            break
     return peaks_info_raw
 
 
-def get_numeric_value(raw_value):
-    try:
-        result = float(raw_value.replace(",", ""))
-    except:
-        result = None
-    return result
-
-
 def complete_peaks_info(peaks_info_raw, properties_list):
-    # peaks_info = dict()
-    # for peak_id, peak_info in peaks_info_raw.items():
-    #     peaks_info[peak_id] = {property_name: None for property_name in properties_list}
-    #     for key, value in peaks_info_raw[peak_id].items():
-    #         peaks_info[peak_id][key] = get_numeric_value(value) if key in NUMERIC_PROPERTIES_LIST \
-    #             else value.lower().encode("utf-8")
-    #         # else unicode(value.lower(), errors='ignore')
-    #
-    #         # peaks_info[peak_id] = {key: value for key, value in peaks_info_raw[peak_id].items()}
-    #
-    # return peaks_info
-
     result_peaks_info = dict()
     for peak_id in peaks_info_raw:
-        new_peak_dict = dict()
         # generate keys for all the data items found
         new_peak_dict = {property_name: None for property_name in properties_list}
 
         for key, value in peaks_info_raw[peak_id].items():
-            # convert numbers to float or encode strings to UTF-8
-            new_peak_dict[key] = get_numeric_value(value) if key in NUMERIC_PROPERTIES_LIST \
-                else value.lower().encode("utf-8")
-
             # in Country use only the first country if more than one found
             if key == "Country":
                 new_value = value.split("/")[0]
             else:
-                new_value = value
+                # convert numbers to float or encode strings to UTF-8
+                new_value = get_numeric_value(value) if key in NUMERIC_PROPERTIES_LIST else value.lower().encode("utf-8")
             new_peak_dict[key] = new_value
 
         # fill data with the heights info
@@ -269,10 +243,14 @@ def complete_peaks_info(peaks_info_raw, properties_list):
 
         # fill meters and feet info if one is missing
         if elevation_m is None:
-            elevation_m = float(elevation_ft.replace(",", "")) / 3.28
+            elevation_m = get_numeric_value(elevation_ft) / 3.28
 
         if elevation_ft is None:
-            elevation_ft = float(elevation_m.replace(",", "")) * 3.28
+            elevation_ft = get_numeric_value(elevation_m) * 3.28
+
+        # save it back, fixed
+        new_peak_dict["Elevation (meters)"] = elevation_m
+        new_peak_dict["Elevation (feet)"] = elevation_ft
 
         # save the peak info in the result dictionary
         result_peaks_info[peak_id] = new_peak_dict
@@ -309,36 +287,32 @@ def main():
     print("Starting web scraping of www.peakware.com ")
     print("Getting initial continents list.")
 
-
     # work on Antarctica for the development phase (SAMPLE_DATA is True)
-    continents = {"Antarctica": "An", "South America": "So"} if SAMPLE_DATA else get_continents()
-    # continents = {"Antarctica": "An"} if SAMPLE_DATA else get_continents()
+    # continents = {"Antarctica": "An", "South America": "So"} if SAMPLE_DATA else get_continents()
+    continents = {"Antarctica": "An"} if SAMPLE_DATA else get_continents()
 
     print("Initial continents list retrieval complete.")
-
     print("Getting peaks list.")
     peaks_list = get_peaks_list(continents)
-    # print(json.dumps(peaks_list, indent=4))
 
-    print "Got {} peaks to process info".format(str(len(peaks_list)))
-    peaks_info_raw = get_peaks_info(peak_properties, peaks_list)
+    # Get and process peaks info
+    print("Got {} peaks to process info".format(str(len(peaks_list))))
+    peaks_info_raw = get_peaks_info(peak_properties, peaks_list)            # get a basic dict for peaks info
+    properties_list = peak_properties.get_properties_list()                 # manage a set for all the properties
+    peaks_info = complete_peaks_info(peaks_info_raw, properties_list)       # complete the peaks info
 
-    properties_list = peak_properties.get_properties_list()
-    peaks_info = complete_peaks_info(peaks_info_raw, properties_list)
-
+    # write the data into a json file (more accurate for knowing what we got from the website)
     with open('peaks_info.json', 'wb') as outfile:
         json.dump(peaks_info, outfile, indent=4)
 
+    # write the data to the result CSV file
     headers = get_headers(peaks_info)
-    print("headers:", headers)
-
     write_dict_to_csv("peaks.csv", headers, peaks_info.values())
 
     print("")
     my_timer.stop()
     print(my_timer.display())
     print("Web scraping of www.peakware.com is complete.")
-
 
 
 if __name__ == "__main__":
