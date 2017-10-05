@@ -32,9 +32,9 @@ NUMERIC_PROPERTIES_LIST = [
                             ]
 
 CONTINENT_PEAKS_SUFFIX_FOR_SORT_BY_NAME = "A"
-PARALLEL_FACTOR = 4
-SAMPLE_DATA = True
-# SAMPLE_DATA = False
+PARALLEL_FACTOR = 10
+# SAMPLE_DATA = True
+SAMPLE_DATA = False
 
 
 class PeakProperties(object):
@@ -82,10 +82,16 @@ class RunningTimer(object):
 
 
 def get_numeric_value(raw_value):
-    try:
-        result = float(raw_value.replace(",", "").strip())
-    except:
-        result = None
+    if isinstance(raw_value, str):
+        try:    # string - remove "," first
+            result = float(raw_value.replace(",", "").strip())
+        except:
+            result = None
+    else:       # not a string, convert to float only
+        try:
+            result = float(raw_value)
+        except:
+            result = None
     return result
 
 
@@ -289,7 +295,10 @@ def main():
 
     # work on Antarctica for the development phase (SAMPLE_DATA is True)
     # continents = {"Antarctica": "An", "South America": "So"} if SAMPLE_DATA else get_continents()
-    continents = {"Antarctica": "An"} if SAMPLE_DATA else get_continents()
+    # continents = {"Asia": "As", "North America": "No"} if SAMPLE_DATA else get_continents()
+    continents = {"North America": "No"} if SAMPLE_DATA else get_continents()
+    # continents = {"Asia": "As"} if SAMPLE_DATA else get_continents()
+    # continents = {"Antarctica": "An"} if SAMPLE_DATA else get_continents()
 
     print("Initial continents list retrieval complete.")
     print("Getting peaks list.")
