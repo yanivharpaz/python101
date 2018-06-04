@@ -6,15 +6,15 @@ import csv
 import sys
 import datetime
 import requests
+import pandas as pd
+import traceback
 from multiprocessing.dummy import Pool as ThreadPool
-# from multiprocessing import Pool as ThreadPool
 
 
+# for unicode support in Python 2
 reload(sys)
 sys.setdefaultencoding('utf8')
 
-import pandas as pd
-import traceback
 
 # settings
 URLS = {
@@ -82,6 +82,7 @@ class RunningTimer(object):
 
 
 def get_numeric_value(raw_value):
+    # convert the numeric values from string displayed on the website
     if isinstance(raw_value, str):
         try:    # string - remove "," first
             result = float(raw_value.replace(",", "").strip())
@@ -96,6 +97,7 @@ def get_numeric_value(raw_value):
 
 
 def get_continents():
+    # get the continents list from the peaks index
     continents = dict()
     url = URLS["peaks_main_url"]
     response = requests.get(url)
@@ -120,6 +122,7 @@ def get_continents():
 
 
 def get_peaks_list(continents):
+    # build a list of peaks from a list of continents
     peaks = dict()
     for continent_name, continent_code in continents.items():
         url = URLS["continent_url"] + continent_code + CONTINENT_PEAKS_SUFFIX_FOR_SORT_BY_NAME
@@ -152,6 +155,7 @@ def get_peaks_list(continents):
 
 
 def peak_response_to_dictionary(response, peak_properties):
+    # build a dictionary of data from the web response object received for each peak
     peak_info = dict()
 
     # parse the unordered list (UL) from the HTML
@@ -169,6 +173,7 @@ def peak_response_to_dictionary(response, peak_properties):
 
 
 def build_peak_raw_data(peak_id, peak_info, peaks_list):
+    # build the raw dictionary for each peaks with all its properties
     peak_raw_data = {'Id': peak_id,
                      'Name': peaks_list[peak_id]['Name'],
                      'Continent': peaks_list[peak_id]['Continent'],
@@ -180,12 +185,14 @@ def build_peak_raw_data(peak_id, peak_info, peaks_list):
 
 
 def get_peaks_response_list(peaks_url_list):
+    # working parallel, fetch the peaks info from the URL list
     pool = ThreadPool(PARALLEL_FACTOR)
     result_response_list = pool.map(requests.get, peaks_url_list)
     return result_response_list
 
 
 def get_peaks_info(peak_properties, peaks_list):
+    # grab the data for all the peaks in the list
     peaks_counter = 0
     peaks_info_raw = dict()
 
@@ -210,6 +217,7 @@ def get_peaks_info(peak_properties, peaks_list):
 
 
 def complete_peaks_info(peaks_info_raw, properties_list):
+    # fill and correct the data for each peak
     result_peaks_info = dict()
     for peak_id in peaks_info_raw:
         # generate keys for all the data items found
@@ -265,6 +273,7 @@ def complete_peaks_info(peaks_info_raw, properties_list):
 
 
 def get_headers(dict_to_examine):
+    # get a list of keys
     headers = list()
     for outer_key in dict_to_examine:
         headers = dict_to_examine[outer_key].keys()
@@ -274,6 +283,7 @@ def get_headers(dict_to_examine):
 
 
 def write_dict_to_csv(csv_file, csv_columns, dict_data):
+    # write the peaks dictionary to a CSV file
     try:
         with open(csv_file, 'wb') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=csv_columns, delimiter=',',
@@ -287,6 +297,7 @@ def write_dict_to_csv(csv_file, csv_columns, dict_data):
 
 
 def main():
+    # main
     my_timer = RunningTimer()
     # load applications properties
     peak_properties = PeakProperties()
@@ -294,10 +305,6 @@ def main():
     print("Getting initial continents list.")
 
     # work on Antarctica for the development phase (SAMPLE_DATA is True)
-    # continents = {"Antarctica": "An", "South America": "So"} if SAMPLE_DATA else get_continents()
-    # continents = {"Asia": "As", "North America": "No"} if SAMPLE_DATA else get_continents()
-    # continents = {"North America": "No"} if SAMPLE_DATA else get_continents()
-    # continents = {"Asia": "As"} if SAMPLE_DATA else get_continents()
     continents = {"Antarctica": "An"} if SAMPLE_DATA else get_continents()
 
     print("Initial continents list retrieval complete.")
