@@ -48,7 +48,7 @@ def main(file_path = r"t:\tmp\TransportFiles.txt"):
                                 str(line.split(" ")[2].split("/")[0]) +
                                 str(line.split(" ")[2].split("/")[1]))
 
-                time_to_process = line.split(" ")[3] if line.split(" ")[3] != "" else line.split(" ")[4]
+                time_to_process = line.split()[3]
                 clinic_hour = int(str(time_to_process.split(":")[0]))
                 clinic_time = int(str(time_to_process.split(":")[0]) + str(time_to_process.split(":")[1]))
                 # process line type #2
