@@ -1,12 +1,31 @@
+import sys
 import logging
 
 # ----------------------
 # files processing
 # ----------------------
-ROWS_LIMIT = -1
+
+# ROWS_LIMIT = sys.maxsize
+ROWS_LIMIT = 99999999999
+
 ROW_TYPES = {
     "date": "‎:תאריך"
 }
+
+FILE_DOCUMENT_MAP_BASELINE = {'header': {
+                                            'top_line': 1,
+                                            'bottom_line': None
+                                         },
+                                'table': {
+                                             'top_line': None,
+                                             'bottom_line': None,
+                                             'data_pages': None
+                                           },
+                                'footer': {
+                                             'top_line': None,
+                                             'bottom_line': None
+                                           },
+                                }
 
 # ----------------------
 # Logger
