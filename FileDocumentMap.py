@@ -48,3 +48,10 @@ class FileDocumentMap(object):
                 writer = csv.writer(csvfile, lineterminator='\n', quotechar='"', quoting=csv.QUOTE_ALL)
                 writer.writerow(row)
 
+
+class SHFileDocumentMap(FileDocumentMap):
+    pass
+
+class MRFileDocumentMap(FileDocumentMap):
+    pass
+
