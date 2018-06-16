@@ -48,5 +48,12 @@ def main(source_path= r't:\tmp\cl01\*.*', dest_path=r'T:\tmp\''):
 if __name__ == "__main__":
     if len(sys.argv) < 3:
         sys.exit("Usage: \npython cl01.py [input_file]")
-    main(sys.argv[1], sys.argv[2])
 
+    if not os.path.isfile(sys.argv[1]):
+        util.logger.error("No such file in directory {}".format(sys.argv[1]))
+
+    if not os.path.exists(sys.argv[1]):
+        util.logger.error("Directory not found {}".format(sys.argv[1]))
+        sys.exit(1)
+
+    main(sys.argv[1], sys.argv[2])

@@ -40,7 +40,6 @@ class FileDocumentMap(object):
             while line_counter < end_line:
                 line_to_add = str(util.u200_strip(self.lines[line_counter]) + " " +
                                   util.u200_strip(self.lines[line_counter + 2])).strip()  # merge two data lines
-                # line_to_add = [line.strip() for line in line_to_add]
                 self.table_lines.append(line_to_add)
                 line_counter += 4
 
@@ -48,6 +47,7 @@ class FileDocumentMap(object):
         print("len(self.table_lines)", len(self.table_lines))
         for line in self.table_lines:
             line_to_add = line.split('|')
+            line_to_add = [line.strip() for line in line_to_add]
             self.data_matrix.append(line_to_add[1:len(line_to_add) - 1])    # skip the first and last empty items
 
         print(len(self.table_lines))
