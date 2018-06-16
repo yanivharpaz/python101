@@ -1,7 +1,7 @@
 import csv
 import settings
 import util
-from pprint import pprint as pp
+# from pprint import pprint as pp
 
 class FileDocumentMap(object):
     """
@@ -14,10 +14,14 @@ class FileDocumentMap(object):
         self.table_lines = list()
         self.data_matrix = list()
         self._document_body = settings.FILE_DOCUMENT_MAP_BASELINE
-        with open(file_path, encoding="Windows-1255") as input_file:
-            # TODO: try - except file exists / open to read
-            self.lines = input_file.read().split('\n')
-            util.logger.info("File content: {} lines".format(len(self.lines)))
+        try:
+            with open(file_path, encoding="Windows-1255") as input_file:
+                # TODO: try - except file exists / open to read
+                self.lines = input_file.read().split('\n')
+                util.logger.info("File content: {} lines".format(len(self.lines)))
+        except IOError as ex:
+            util.logger.error("Can not open file: {}. IO ERROR: {}".format(file_path, ex))
+
 
     def process_lines(self):
         # process titles
@@ -85,7 +89,6 @@ class FileDocumentMap(object):
             util.logger.debug("end of table {} ".format(self.get_table_bottom_line()))
 
 
-
     def get_header_bottom_line(self):
         return self._document_body['header']['bottom_line']
 
@@ -108,10 +111,13 @@ class FileDocumentMap(object):
         # return self.table_lines
 
     def persist(self, dest_path, file_name):
-        with open(dest_path + file_name, 'w') as csvfile:
-            for row in self.get_table_data_pages():
-                writer = csv.writer(csvfile, lineterminator='\n', quotechar='"', quoting=csv.QUOTE_ALL)
-                writer.writerow(row)
+        try:
+            with open(dest_path + file_name, 'w') as csvfile:
+                for row in self.get_table_data_pages():
+                    writer = csv.writer(csvfile, lineterminator='\n', quotechar='\'', quoting=csv.QUOTE_ALL)
+                    writer.writerow(row)
+        except IOError as ex:
+            util.logger.error("Can not write to file {}. IO ERROR: {}".format(dest_path + file_name, ex))
 
     def get_line_headers(self):
         """
