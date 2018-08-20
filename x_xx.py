@@ -1,14 +1,36 @@
+from elasticsearch import Elasticsearch
+import requests, elasticsearch, sys
+import datetime
 
 
-xx = {1: 'one',
-      2: 'two',
-      3: 'three'
-      }
+def main(params):
+    es = Elasticsearch()
 
-if 1 in xx:
-    print '1 is in'
+    doc = {
+        'author': 'kimchy',
+        'text': 'Elasticsearch: cool. bonsai cool.',
+        'timestamp': datetime.datetime.now(),
+    }
 
-print(xx)
+    res = es.index(index="test-index", doc_type='tweet', id=2, body=doc)
+    res = es.index(index="test-index", doc_type='tweet', id=3, body=doc)
+    res = es.index(index="test-index", doc_type='tweet', id=4, body=doc)
+    print(res['result'])
+
+    res = es.get(index="test-index", doc_type='tweet', id=1)
+    print(res['_source'])
+
+    es.indices.refresh(index="test-index")
+
+    res = es.search(index="test-index", body={"query": {"match_all": {}}})
+    print("Got %d Hits:" % res['hits']['total'])
+    for hit in res['hits']['hits']:
+        print("%(timestamp)s %(author)s: %(text)s" % hit["_source"])
+
+
+if __name__ == "__main__":
+    print("hello...")
+    main(sys.argv)
 
 
 
