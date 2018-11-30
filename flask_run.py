@@ -19,7 +19,7 @@ def hello_world():
     resp.headers['Link'] = 'http://luisrei.com'
 
     # return resp
-    return json.dumps({'success':True}), 200, {'ContentType':'application/json'}
+    return json.dumps({'success':True}), 200, {'ContentType': 'application/json'}
 
 app.run(port=5000)
 
